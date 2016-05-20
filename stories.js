@@ -106,18 +106,18 @@ var updateMap = function(storyLines) {
   allVisibleNodes = allVisibleNodes.reduce(function(previous, current) { return previous.concat(current);}, []);
   allVisibleLinks = allVisibleLinks.reduce(function(previous, current) { return previous.concat(current);}, []);
 
-  var link = d3.svg.diagonal()
-        .projection(function(d)
-        {
-            return [d.x, d.y];
-        });
-
-  var drawnLinks = layoutRoot.selectAll("path.link").data(allVisibleLinks);
-  drawnLinks.attr("d", link);
+  var drawnLinks = layoutRoot.selectAll("line.link").data(allVisibleLinks);
+  drawnLinks.attr("x1", function(d) { return d.source.x; })
+    .attr("y1", function(d) { return d.source.y; })
+    .attr("x2", function(d) { return d.target.x; })
+    .attr("y2", function(d) { return d.target.y; });
   drawnLinks.enter()
-    .append("svg:path")
+    .append("svg:line")
     .attr("class", "link")
-    .attr("d", link);
+    .attr("x1", function(d) { return d.source.x; })
+    .attr("y1", function(d) { return d.source.y; })
+    .attr("x2", function(d) { return d.target.x; })
+    .attr("y2", function(d) { return d.target.y; });
   drawnLinks.exit().remove();
 
   layoutRoot.selectAll("circle.node-dot").remove();
