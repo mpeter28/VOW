@@ -26,18 +26,18 @@ var story2 =
 {
   "title": "Foo",
   "text": "Lorem Ipsum Doler Sit Amet",
-  "geo_x": 200,
-  "geo_y": 80,
+  "geo_x": 210,
+  "geo_y": 10,
   "next": {
     "title": "Foo 2",
     "text": "Lorem Ipsum Doler Sit Amet 2",
-    "geo_x": 70,
-    "geo_y": 90,
+    "geo_x": 250,
+    "geo_y": 50,
     "next": {
       "title": "Foo 3",
       "text": "Lorem Ipsum Doler Sit Amet 3",
-      "geo_x": 40,
-      "geo_y": 10
+      "geo_x": 350,
+      "geo_y": 150
     }
   }
 };
@@ -62,13 +62,23 @@ var layoutRoot = d3.select(containerName)
 //HELPER FUNCTION SECTION
 //----------
 
+var clickNode = function(clickedNode) {
+  if (!clickedNode.exposed_next && clickedNode.next) {
+    clickedNode.exposed_next = clickedNode.next;
+    updateMap(stories);
+  }
+
+  d3.select("#node_title").text(clickedNode.title);
+  d3.select("#node_body").text(clickedNode.text);
+}
+
 var visibleNodes = function(storyLine) {
   var treeLayout = d3.layout.tree()
     .sort(null)
     .size([width, height])
     .children(function(d)
     {
-      return d.next ? [d.next] : null;
+      return d.exposed_next ? [d.exposed_next] : null;
     });
   
   var visible = treeLayout.nodes(storyLine);
@@ -102,25 +112,24 @@ var updateMap = function(storyLines) {
             return [d.x, d.y];
         });
 
-  layoutRoot.selectAll("path.link")
-    .data(allVisibleLinks)
-    .enter()
+  var drawnLinks = layoutRoot.selectAll("path.link").data(allVisibleLinks);
+  drawnLinks.attr("d", link);
+  drawnLinks.enter()
     .append("svg:path")
     .attr("class", "link")
     .attr("d", link);
+  drawnLinks.exit().remove();
 
-  layoutRoot.selectAll("g.node")
-    .data(allVisibleNodes)
-    .enter()
-    .append("svg:g")
-    .attr("class", "node")
-    .attr("transform", function(d)
-    {
-      return "translate(" + d.x + "," + d.y + ")";
-    })
+  layoutRoot.selectAll("circle.node-dot").remove();
+  var drawnNodes = layoutRoot.selectAll("circle.node-dot").data(allVisibleNodes);
+  drawnNodes.enter()
     .append("svg:circle")
     .attr("class", "node-dot")
-    .attr("r", nodeRadius);
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; })
+    .attr("r", function(d) { return nodeRadius; })
+    .on("click", clickNode);
+  drawnNodes.exit().remove;
 };
 
-updateMap([story1, story2]);
+updateMap(stories);
