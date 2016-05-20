@@ -4,40 +4,40 @@
 
 var story1 = 
 {
-  "title": "Foo",
+  "title": "Story 2",
   "text": "Lorem Ipsum Doler Sit Amet",
-  "geo_x": 10,
-  "geo_y": 10,
+  "geo_x": 500,
+  "geo_y": 310,
   "next": {
-    "title": "Foo 2",
+    "title": "Story 2 Page 2",
     "text": "Lorem Ipsum Doler Sit Amet 2",
-    "geo_x": 50,
-    "geo_y": 50,
+    "geo_x": 550,
+    "geo_y": 350,
     "next": {
-      "title": "Foo 3",
+      "title": "Story 2 Page 3",
       "text": "Lorem Ipsum Doler Sit Amet 3",
-      "geo_x": 150,
-      "geo_y": 150
+      "geo_x": 650,
+      "geo_y": 650
     }
   }
 };
 
 var story2 = 
 {
-  "title": "Foo",
+  "title": "Story 1",
   "text": "Lorem Ipsum Doler Sit Amet",
-  "geo_x": 210,
-  "geo_y": 10,
+  "geo_x": 530,
+  "geo_y": 570,
   "next": {
-    "title": "Foo 2",
+    "title": "Story 1 Page 2",
     "text": "Lorem Ipsum Doler Sit Amet 2",
-    "geo_x": 250,
-    "geo_y": 50,
+    "geo_x": 750,
+    "geo_y": 550,
     "next": {
-      "title": "Foo 3",
+      "title": "Story1 Page 3",
       "text": "Lorem Ipsum Doler Sit Amet 3",
-      "geo_x": 350,
-      "geo_y": 150
+      "geo_x": 850,
+      "geo_y": 650
     }
   }
 };
@@ -50,17 +50,22 @@ var stories = [story1, story2];
 
 var width = 640;
 var height = 480;
-var nodeRadius = 5;
+var nodeRadius = "1.1%";
 var containerName = "#story-container";
     
 var layoutRoot = d3.select(containerName)
-  .append("svg:svg").attr("width", width).attr("height", height)
-  .append("svg:g")
-  .attr("class", "container");
+  .attr("width", width).attr("height", height).attr("viewBox", "200 200 1480 1160")
+  .append("svg:g").attr("class", "container");
 
 //----------
 //HELPER FUNCTION SECTION
 //----------
+
+var zoomToNode = function(focusNode) {
+  var cornerX = focusNode.x - 640;
+  var cornerY = focusNode.y - 480;
+  d3.select(containerName).transition().duration(750).attr("viewBox", cornerX + " " + cornerY + " 1280 960");
+}
 
 var clickNode = function(clickedNode) {
   if (!clickedNode.exposed_next && clickedNode.next) {
@@ -70,6 +75,8 @@ var clickNode = function(clickedNode) {
 
   d3.select("#node_title").text(clickedNode.title);
   d3.select("#node_body").text(clickedNode.text);
+
+  zoomToNode(clickedNode);
 }
 
 var visibleNodes = function(storyLine) {
